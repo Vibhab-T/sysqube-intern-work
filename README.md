@@ -39,3 +39,11 @@ dev_dependencies:
     2. SQLite - Local Storage (Storing Favourite Table)
     3. http - to send/fetch API request
 
+### Features:
+
+1. Toggleable Light and Dark Theme
+2. Custom Fallback Error Widgets Incase of Data Fetching Failure
+3. Custom Loading Widgets
+4. Single Screen Architecture i.e one screen with bottom nav bar
+
+Tested on Android. 
