@@ -16,7 +16,8 @@ class FavouritesController extends GetxController {
 
   Future<void> loadFavourites() async {
     try{
-
+      isLoading.value = true;
+      faves.value = await _repo.getFavourites();
     } catch (e) {
       Get.snackbar("Error", "Failed to load favourites: $e");
     } finally {
@@ -30,7 +31,9 @@ class FavouritesController extends GetxController {
 
   Future<void> addFavourite(Book book) async {
     try{
-
+      await _repo.addFavourite(book);
+      await loadFavourites();
+      Get.snackbar("Success", "Added to favourites");
     } catch (e){
       Get.snackbar("Error", "Failed to add to favourites: $e");
     } finally {
@@ -38,7 +41,7 @@ class FavouritesController extends GetxController {
     }
   }
 
-    Future<void> removeFavorite(String id) async {
+  Future<void> removeFavorite(String id) async {
     try {
       await _repo.removeFavourite(id);
       await loadFavourites();
@@ -55,4 +58,5 @@ class FavouritesController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Failed to toggle favorite: $e');
     }
+  }
 }

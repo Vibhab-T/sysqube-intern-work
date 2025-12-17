@@ -1,11 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sysqube_intern/app/routes/app_routes.dart';
 import 'package:sysqube_intern/app/themes/theme_controller.dart';
-import 'package:sysqube_intern/modules/favourites/controllers/favourites_controller.dart';
+import 'package:sysqube_intern/modules/favourites/views/favourites_views.dart';
 import 'package:sysqube_intern/modules/home/controllers/home_controller.dart';
 import 'package:sysqube_intern/utils/constants.dart';
+import 'package:sysqube_intern/widgets/book_card.dart';
+import 'package:sysqube_intern/widgets/error_widget.dart';
+import 'package:sysqube_intern/widgets/loading_widget.dart';
 
 class HomeView extends StatelessWidget{
   const HomeView({super.key});
@@ -13,8 +14,7 @@ class HomeView extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.put(HomeController());
-    final ThemeController themeController = Get.find<ThemeController>();
-    final FavouritesController favController = Get.put(FavouritesController());
+    final themeController = Get.find<ThemeController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -36,16 +36,13 @@ class HomeView extends StatelessWidget{
         if (controller.selectedIndex.value == 0) {
           return _buildHomeTab(controller);
         } else {
-          return _buildFavouritesTab(favController);
+          return const FavouritesView();
         }
       }),
       bottomNavigationBar: Obx(()=>BottomNavigationBar(
         currentIndex: controller.selectedIndex.value,
         onTap: (index){
           controller.changeTab(index);
-          if (index ==1){
-            favController.loadFavourites();
-          }
         },
         items: const [
           BottomNavigationBarItem(
@@ -85,6 +82,55 @@ class HomeView extends StatelessWidget{
     );
   }
 
+  Widget _buildPopularSection(HomeController controller){
+    return Column(
+      crossAxisAlignment: .start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            "Popular Picks",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold
+            ),
+          )
+        ),
+        Obx((){
+          if (controller.isLoadingPopular.value){
+            return const LoadingWidget(height: 280);
+          }
+
+          if (controller.error.value.isNotEmpty && controller.popularBooks.isEmpty){
+            return CustomErrorWidget(
+              message: controller.error.value,
+              onRetry: ()=> controller.fetchPopularBooks()
+            );
+          }
+
+          return SizedBox(
+            height: 280,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: controller.popularBooks.length,
+              itemBuilder: (context, index){
+                final book = controller.popularBooks[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: BookCard(
+                    book: book,
+                    width: 160
+                  )
+                );
+              },
+            )
+          );
+        })
+      ],
+    );
+  }
+
 
 
   Widget _buildCategoriesSection(HomeController controller){
@@ -100,23 +146,6 @@ class HomeView extends StatelessWidget{
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(0)
-                ),
-                child: const Row(
-                  children: [
-                    Text("Dropdown", style: TextStyle(fontSize: 12)),
-                    SizedBox(width: 4),
-                    Icon(Icons.arrow_drop_down, size: 16),
-                  ],
                 ),
               ),
             ],
@@ -167,93 +196,5 @@ class HomeView extends StatelessWidget{
         })
       ],
     );
-  }
-
-  Widget _buildFavouritesTab(FavouritesController controller){
-    return Obx((){
-      if (controller.isLoading.value){
-        return const LoadingWidget(height: 400);
-      }
-
-      if (controller.faves.isEmpty){
-        return const Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              Icon(Icons.favorite_outline, size: 64, color: Colors.grey),
-              SizedBox(height: 16,),
-              Text(
-                "No Favourites Yet",
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-              SizedBox(height: 8,),
-              Text(
-                "Start adding to your favourites..",
-                style: TextStyle(fontSize: 24, color: Colors.grey),
-              )
-            ],
-          )
-        );
-      }
-
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: controller.faves.length,
-        itemBuilder: (context, index){
-          final book = controller.faves[index];
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(12),
-              leading: book.thumbnail != null 
-                  ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      book.thumbnail!,
-                      width: 50,
-                      height: 70,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 50,
-                        height: 70,
-                        color: Colors.grey[800],
-                        child: const Icon(Icons.book)
-                      ),
-                    ),
-                  ) 
-                  : Container(
-                    width: 50,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(8)
-                    ),
-                    child: const Icon(Icons.book)
-                  ),
-              title: Text(
-                book.title, 
-                maxLines: 2, 
-                overflow: TextOverflow.ellipsis, 
-                style: TextStyle(fontWeight: FontWeight.bold)
-              ),
-              subtitle: Text(
-                book.authors.join(', '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => controller.removeFavorite(book.id),
-              ),
-              onTap: () => Get.toNamed(
-                AppRoutes.BOOK_DETAIL,
-                arguments: book
-              ),
-            )
-          );
-        },
-      );
-    });
   }
 }

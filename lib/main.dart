@@ -5,12 +5,18 @@ import 'package:sysqube_intern/app/routes/app_routes.dart';
 import 'package:sysqube_intern/app/themes/app_theme.dart';
 import 'package:sysqube_intern/app/themes/theme_controller.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
 class MyApp extends StatelessWidget{
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ThemeController themeController = Get.put(ThemeController());
+    final ThemeController themeController = Get.put(ThemeController()); //Get.put-ing the themeController from main
+                                                                        // to make it available 
+                                                                        // everywhere. Thats what Get.put(dependency) does
 
     return Obx(()=>GetMaterialApp(
       title: "SysQube Books",

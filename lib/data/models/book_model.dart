@@ -65,6 +65,21 @@ class Book {
       'description': description,
       'thumbnail': thumbnail,
       'previewLink': previewLink,
-    }
+    };
   }
 }
+
+
+/*
+factory Book.fromJson() :
+aako api JSON ma huncha, teslai Dart ko class ko object ma change garna. 
+
+toJson():
+Dart ko object lai chai API ma pathauna json ma change
+
+toMap():
+book object lai map structure ma change garne because sqllite le chai map use garcha
+
+factory Book.fromMap():
+DB ko euta row lai book object ma change garne
+*/
