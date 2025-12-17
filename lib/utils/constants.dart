@@ -1,5 +1,5 @@
 class AppConstants{
-  static const String apiKey = "AIzaSyDSLAbSf7YQ6gGGdHJkkZYzOWNgXnbansk";
+  static const String apiKey = "apikey"; //replace with actual key
   static const String baseUrl = "https://www.googleapis.com/books/v1";
 
   //api endpoints
