@@ -5,7 +5,7 @@
 ### Installation Guide
 
 1. Download the zip file or clone the project
-2. In the lib/utils/constants, replace your actuali apikey
+2. In the lib/utils/constants, replace your actuall google cloud console apikey
 3. In the project root run:
   
     flutter pub get
@@ -31,6 +31,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
 ### Core Dependencies:
 
     1. GetX - State Management (Themes, favs)
